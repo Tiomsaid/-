@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>同占德骨科诊所管理系统</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260527-db-sync">
 </head>
 <body>
   <div id="loginView" class="login-view">
@@ -25,6 +25,7 @@
         <input id="loginPassword" type="password" autocomplete="current-password" value="123456" required>
       </label>
       <button class="primary-btn full-btn" type="submit">登录系统</button>
+      <p id="syncStatus" class="login-tip">正在连接服务器数据库...</p>
       <p class="login-tip">演示账号：admin / doctor / nurse / drug / cashier，密码均为 123456</p>
     </form>
   </div>
@@ -46,6 +47,7 @@
       </div>
       <div class="user-area">
         <span id="currentUser"></span>
+        <span id="headerSyncStatus" class="sync-badge">数据库连接中</span>
         <button id="logoutBtn" type="button">退出</button>
       </div>
     </header>
@@ -71,6 +73,6 @@
 
   <div id="printArea" class="print-area"></div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=20260527-db-sync"></script>
 </body>
 </html>

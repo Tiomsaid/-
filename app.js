@@ -12,7 +12,8 @@ const state = {
   activeTab: "dashboard",
   selectedRows: {},
   selectedPatientId: null,
-  collapsedMenuGroups: {}
+  collapsedMenuGroups: {},
+  remoteDatabaseReady: false
 };
 
 const permissions = {
@@ -237,15 +238,24 @@ async function hydrateDatabaseFromServer() {
   if (!canUseRemoteDatabase()) return;
   try {
     const response = await fetch(`${API_BASE}/data`, { cache: "no-store" });
-    if (!response.ok) return;
+    if (!response.ok) {
+      setSyncStatus("服务器数据库连接失败，正在使用本机缓存", false);
+      return;
+    }
     const result = await response.json();
     if (result && result.hasData && result.data) {
       state.db = result.data;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.db));
+      state.remoteDatabaseReady = true;
+      setSyncStatus("已连接服务器数据库", true);
       return;
     }
     await syncDatabaseToServer(state.db);
+    state.remoteDatabaseReady = true;
+    setSyncStatus("已初始化服务器数据库", true);
   } catch (error) {
+    state.remoteDatabaseReady = false;
+    setSyncStatus("服务器数据库连接失败，正在使用本机缓存", false);
     console.warn("远程数据库不可用，继续使用本地缓存。", error);
   }
 }
@@ -253,14 +263,29 @@ async function hydrateDatabaseFromServer() {
 async function syncDatabaseToServer(data = state.db) {
   if (!canUseRemoteDatabase() || !data) return;
   try {
-    await fetch(`${API_BASE}/data`, {
+    const response = await fetch(`${API_BASE}/data`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ data })
     });
+    state.remoteDatabaseReady = response.ok;
+    setSyncStatus(response.ok ? "已同步到服务器数据库" : "服务器数据库同步失败", response.ok);
   } catch (error) {
+    state.remoteDatabaseReady = false;
+    setSyncStatus("服务器数据库同步失败，数据暂存在本机", false);
     console.warn("远程数据库同步失败，数据已保存在本地缓存。", error);
   }
+}
+
+function setSyncStatus(text, ok) {
+  const loginStatus = $("syncStatus");
+  const headerStatus = $("headerSyncStatus");
+  [loginStatus, headerStatus].forEach(node => {
+    if (!node) return;
+    node.textContent = text;
+    node.classList.toggle("sync-ok", !!ok);
+    node.classList.toggle("sync-error", ok === false);
+  });
 }
 
 function generateId(prefix) {
