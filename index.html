@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>同占德骨科诊所管理系统</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="loginView" class="login-view">
+    <form id="loginForm" class="login-card">
+      <div class="login-brand">
+        <div class="brand-mark">骨</div>
+        <div>
+          <h1>同占德骨科诊所</h1>
+          <p>Web 管理系统</p>
+        </div>
+      </div>
+      <label>
+        <span>账号</span>
+        <input id="loginUsername" type="text" autocomplete="username" value="admin" required>
+      </label>
+      <label>
+        <span>密码</span>
+        <input id="loginPassword" type="password" autocomplete="current-password" value="123456" required>
+      </label>
+      <button class="primary-btn full-btn" type="submit">登录系统</button>
+      <p class="login-tip">演示账号：admin / doctor / nurse / drug / cashier，密码均为 123456</p>
+    </form>
+  </div>
+
+  <div id="appView" class="app-layout hidden">
+    <header class="topbar">
+      <div class="title-area">
+        <button id="menuToggle" class="icon-btn" type="button" title="打开菜单">☰</button>
+        <h1>同占德骨科诊所管理系统</h1>
+      </div>
+      <div class="quick-actions" aria-label="快捷功能">
+        <button data-open-tab="payments">门诊收费</button>
+        <button data-open-tab="doctor">医生接诊</button>
+        <button data-open-tab="nurse">护士执行登记</button>
+        <button data-open-tab="treatments">检查/治疗登记</button>
+        <button data-open-tab="dispense">药品发放</button>
+        <button data-open-tab="retail">药品零售</button>
+        <button data-open-tab="profile">患者资料</button>
+      </div>
+      <div class="user-area">
+        <span id="currentUser"></span>
+        <button id="logoutBtn" type="button">退出</button>
+      </div>
+    </header>
+
+    <main class="main-layout">
+      <aside id="sidebar" class="sidebar"></aside>
+      <section class="content">
+        <div id="tabsBar" class="tabs-bar"></div>
+        <div id="workspace" class="workspace"></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="modalTitle"></h2>
+        <button id="modalClose" class="icon-btn" type="button" title="关闭">×</button>
+      </div>
+      <div id="modalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="printArea" class="print-area"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
