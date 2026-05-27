@@ -1,0 +1,15 @@
+CREATE DATABASE IF NOT EXISTS tongzhande_clinic
+  DEFAULT CHARACTER SET utf8mb4
+  DEFAULT COLLATE utf8mb4_unicode_ci;
+
+CREATE USER IF NOT EXISTS 'clinic_user'@'localhost' IDENTIFIED BY 'CHANGE_ME';
+GRANT ALL PRIVILEGES ON tongzhande_clinic.* TO 'clinic_user'@'localhost';
+FLUSH PRIVILEGES;
+
+USE tongzhande_clinic;
+
+CREATE TABLE IF NOT EXISTS clinic_collections (
+  name VARCHAR(64) PRIMARY KEY,
+  data JSON NOT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -1,4 +1,5 @@
 const STORAGE_KEY = "tongzhande_clinic_data_v2";
+const API_BASE = `${window.location.origin}/clinic-api`;
 
 const commonDiagnoses = ["腰椎间盘突出", "颈椎病", "骨质增生", "关节炎", "软组织损伤", "骨折", "扭伤", "腱鞘炎", "肩周炎", "坐骨神经痛"];
 const commonAdvice = ["口服药物治疗", "外敷消肿止痛药", "注意休息", "禁止剧烈运动", "定期复查", "必要时拍片检查"];
@@ -38,10 +39,13 @@ const tabNames = {
   ...Object.fromEntries(menuGroups.flatMap(group => group.items))
 };
 
-document.addEventListener("DOMContentLoaded", initApp);
+document.addEventListener("DOMContentLoaded", () => {
+  initApp();
+});
 
-function initApp() {
+async function initApp() {
   state.db = initDemoData();
+  await hydrateDatabaseFromServer();
   bindGlobalEvents();
   renderSidebar();
   const savedUser = sessionStorage.getItem("clinic_user");
@@ -213,14 +217,50 @@ function makeRxItem(drug, quantity, usage) {
 function saveData(key, data) {
   if (data === undefined) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(key));
+    if (state.db) syncDatabaseToServer(key);
     return;
   }
   localStorage.setItem(key, JSON.stringify(data));
+  if (key === STORAGE_KEY && state.db) syncDatabaseToServer(data);
 }
 
 function loadData(key) {
   const raw = localStorage.getItem(key);
   return raw ? JSON.parse(raw) : null;
+}
+
+function canUseRemoteDatabase() {
+  return window.location.protocol === "http:" || window.location.protocol === "https:";
+}
+
+async function hydrateDatabaseFromServer() {
+  if (!canUseRemoteDatabase()) return;
+  try {
+    const response = await fetch(`${API_BASE}/data`, { cache: "no-store" });
+    if (!response.ok) return;
+    const result = await response.json();
+    if (result && result.hasData && result.data) {
+      state.db = result.data;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.db));
+      return;
+    }
+    await syncDatabaseToServer(state.db);
+  } catch (error) {
+    console.warn("远程数据库不可用，继续使用本地缓存。", error);
+  }
+}
+
+async function syncDatabaseToServer(data = state.db) {
+  if (!canUseRemoteDatabase() || !data) return;
+  try {
+    await fetch(`${API_BASE}/data`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data })
+    });
+  } catch (error) {
+    console.warn("远程数据库同步失败，数据已保存在本地缓存。", error);
+  }
 }
 
 function generateId(prefix) {

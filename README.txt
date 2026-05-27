@@ -53,4 +53,22 @@ patients、visits、prescriptions、drugs、payments、treatments、nurseRecords
 布局避免大量固定高度，适配 Windows 浏览器缩放 100%、125%、150%。
 
 八、后续扩展建议
-当前版本用于业务流程验证。正式使用时建议升级为后端数据库版本，并增加自动备份、操作日志、精细权限、打印机配置和数据导入导出。
+当前版本已预留 MySQL API 同步能力。正式使用时建议继续增加自动备份、操作日志、精细权限、打印机配置和数据导入导出。
+
+九、MySQL API 部署说明
+server 目录提供 Node.js + MySQL API。
+
+接口：
+GET /clinic-api/health
+GET /clinic-api/data
+PUT /clinic-api/data
+
+服务器环境变量示例见：
+server/.env.example
+
+数据库脚本：
+server/schema.sql
+
+前端运行在 http/https 环境时会自动尝试访问 /clinic-api/data。
+如果 API 正常，系统数据保存到 MySQL。
+如果 API 不可用，系统继续使用浏览器 localStorage 缓存。
